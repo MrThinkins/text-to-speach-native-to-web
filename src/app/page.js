@@ -11,7 +11,7 @@ export default function TTS() {
   const ttsModel = useRef(null)
 
   const audioCache = useRef(null)
-
+  console.log('Model loaded and ready:', !!ttsModel.current)
   async function loadTTSModel() {
     try {
       const { KokoroTTS } = await import("kokoro-js")
@@ -19,7 +19,7 @@ export default function TTS() {
         ? "webgpu"
         : "wasm"
 
-      const tempTTSModel = await KokoroTTS.from_pretrained(KokoroModelID, {
+        const tempTTSModel = await KokoroTTS.from_pretrained(KokoroModelID, {
         deviceType,
         dType: deviceType === "webgpu" ? "fp32" : "q8"
       })
@@ -86,22 +86,8 @@ export default function TTS() {
       setAudioUrl(newAudioUrl)
 
       const audio = new Audio(newAudioUrl)
-      // await confirm('play audio?')
       audio.play()
-      // let audio, sampleRate
 
-      // if (result.audio) {
-      //   audio = result.audio
-      //   console.log('result.sampleRate')
-      //   console.log(result.sampleRate)
-      //   sampleRate = result.sampleRate || 24000
-      //   console.log(sampleRate)
-      // } else {
-      //   audio = result
-      //   sampleRate = 24000
-      // }
-
-      // audioCache = { audio, sampleRate }
 
       setStatus('Audio Generated')
     } catch (error) {
