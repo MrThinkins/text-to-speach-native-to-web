@@ -13,8 +13,9 @@ export default function TTS() {
   const ttsModel = useRef(null)
 
   const audioCache = useRef(null)
-  async function loadTTSModel() {
 
+
+  async function loadTTSModel() {
     try {
       const { KokoroTTS } = await import("kokoro-js")
       const device = typeof navigator !== "undefined" && "gpu" in navigator
@@ -35,7 +36,7 @@ export default function TTS() {
   }
 
   async function playAudio() {
-    const audioContext = new (window.AudioContext || window.webk)
+
   }
 
   async function generateAudio() {
