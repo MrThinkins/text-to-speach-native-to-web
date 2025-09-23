@@ -8,11 +8,11 @@ const KokoroModelID = 'onnx-community/Kokoro-82M-v1.0-ONNX'
 
 export default function TTS() {
   const [status, setStatus] = useState('loading')
+  const [textInput, setTextInput] = useState('This is the default text for this text input to be replaced later.')
   const [audioUrl, setAudioUrl] = useState(null)
   const ttsModel = useRef(null)
 
   const audioCache = useRef(null)
-  console.log('Model loaded and ready:', !!ttsModel.current)
   async function loadTTSModel() {
 
     try {
@@ -38,8 +38,6 @@ export default function TTS() {
     const audioContext = new (window.AudioContext || window.webk)
   }
 
-  
-
   async function generateAudio() {
     if (!ttsModel.current) {
       setStatus('Wait for model to load')
@@ -47,7 +45,7 @@ export default function TTS() {
     }
     
     try {
-      const result = await ttsModel.current.generate('Hello, this is some test text that is going to be replaced later. Hello, this is some test text that is going to be replaced later.', { voice: 'af_heart' })
+      const result = await ttsModel.current.generate(textInput, { voice: 'af_heart' })
       const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
       const blob = new Blob([wavBuffer], { type: 'audio/wav' })
       const newAudioUrl = URL.createObjectURL(blob)
@@ -72,6 +70,12 @@ export default function TTS() {
       <div id="statusShower">
         {status}
       </div>
+      <textarea
+        value={textInput}
+        onChange={(e) => setTextInput(e.target.value)}
+      >
+      </textarea>
+      <br></br>
       <button onClick={generateAudio}>Generate and play audio</button>
     </div>
   )
