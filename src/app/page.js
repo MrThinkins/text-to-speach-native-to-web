@@ -15,13 +15,13 @@ export default function TTS() {
   async function loadTTSModel() {
     try {
       const { KokoroTTS } = await import("kokoro-js")
-      const deviceType = typeof navigator !== "undefined" && "gpu" in navigator
+      const device = typeof navigator !== "undefined" && "gpu" in navigator
         ? "webgpu"
         : "wasm"
 
         const tempTTSModel = await KokoroTTS.from_pretrained(KokoroModelID, {
-        deviceType,
-        dType: deviceType === "webgpu" ? "fp32" : "q8"
+        device,
+        dType: device === "webgpu" ? "fp32" : "q8"
       })
 
       ttsModel.current = tempTTSModel
@@ -79,7 +79,7 @@ export default function TTS() {
     }
     
     try {
-      const result = await ttsModel.current.generate('Hello, this is some test text that is going to be replaced later.', { voice: 'af_heart' })
+      const result = await ttsModel.current.generate('Hello, this is some test text that is going to be replaced later. Hello, this is some test text that is going to be replaced later.', { voice: 'af_heart' })
       const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
       const blob = new Blob([wavBuffer], { type: 'audio/wav' })
       const newAudioUrl = URL.createObjectURL(blob)
