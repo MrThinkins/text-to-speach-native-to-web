@@ -12,6 +12,7 @@ export default function TTS() {
   const [audioUrl, setAudioUrl] = useState(null)
   const ttsModel = useRef(null)
 
+  const [arrayOfAudio, setArrayOfAudio] = useState([])
   const audioCache = useRef(null)
 
 
@@ -35,8 +36,8 @@ export default function TTS() {
     }
   }
 
-  async function playAudio() {
-
+  function playAudio(index) {
+    arrayOfAudio[index].play()
   }
 
   async function generateAudio() {
@@ -51,9 +52,13 @@ export default function TTS() {
       const blob = new Blob([wavBuffer], { type: 'audio/wav' })
       const newAudioUrl = URL.createObjectURL(blob)
       setAudioUrl(newAudioUrl)
-
+      
       const audio = new Audio(newAudioUrl)
-      audio.play()
+      setArrayOfAudio(prev => [
+        ...prev,
+        audio
+      ])
+      // audio.play()
 
 
       setStatus('Audio Generated')
@@ -77,7 +82,15 @@ export default function TTS() {
       >
       </textarea>
       <br></br>
-      <button onClick={generateAudio}>Generate and play audio</button>
+      {arrayOfAudio.map((arrayOfAudio, key) => (
+        <div key={key}>
+          Audio Piece {key}
+          <button onClick={() => playAudio(key)}>
+            Play
+          </button>
+        </div>
+      ))}
+      <button onClick={generateAudio}>Generate udio</button>
     </div>
   )
 }
