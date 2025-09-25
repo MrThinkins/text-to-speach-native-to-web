@@ -90,7 +90,7 @@ export default function TTS() {
           </button>
         </div>
       ))}
-      <button onClick={generateAudio}>Generate udio</button>
+      <button onClick={generateAudio}>Generate audio</button>
     </div>
   )
 }
