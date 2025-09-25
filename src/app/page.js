@@ -114,12 +114,11 @@ export default function TTS() {
       >
       </textarea>
       <br></br>
-      {arrayOfAudio.map((arrayOfAudio, key) => (
+      {arrayOfAudio.map((audio, key) => (
         <div key={key}>
           Audio Piece {key}
-          <button onClick={() => playAudio(key)}>
-            Play
-          </button>
+          <br></br>
+          <audio controls src={audio.src}></audio>
         </div>
       ))}
       <button onClick={generateAudio}>Generate audio</button>
