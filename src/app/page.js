@@ -40,6 +40,34 @@ export default function TTS() {
     arrayOfAudio[index].play()
   }
 
+  function splitString(textToSplit) {
+    let arraysToGenerate = []
+    let tempTextToSplit = textToSplit
+    while (tempTextToSplit.length > 0) {
+      // let chunk = ''
+      let i = 0
+      while(i < tempTextToSplit.length) {
+        if (tempTextToSplit[i] == '.') {
+          arraysToGenerate.push(tempTextToSplit.slice(0, i + 1))
+          tempTextToSplit = tempTextToSplit.slice(i + 1)
+          console.log('arraysToGenerate')
+          console.log(arraysToGenerate)
+          console.log('tempTextToSplit')
+          console.log(tempTextToSplit)
+          i = 0
+        }
+        i++
+      }
+      arraysToGenerate.push(tempTextToSplit)
+      console.log('arraysToGenerate')
+      console.log(arraysToGenerate)
+      console.log('tempTextToSplit')
+      console.log(tempTextToSplit)
+      tempTextToSplit = ''
+    }
+    return arraysToGenerate
+  }
+
   async function generateAudio() {
     if (!ttsModel.current) {
       setStatus('Wait for model to load')
@@ -47,17 +75,21 @@ export default function TTS() {
     }
     
     try {
-      const result = await ttsModel.current.generate(textInput, { voice: 'af_heart' })
-      const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
-      const blob = new Blob([wavBuffer], { type: 'audio/wav' })
-      const newAudioUrl = URL.createObjectURL(blob)
-      setAudioUrl(newAudioUrl)
+      let arraysToGenerate = splitString(textInput)
+      for (let i = 0; i < arraysToGenerate.length; i++) {
+        const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
+        const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
+        const blob = new Blob([wavBuffer], { type: 'audio/wav' })
+        const newAudioUrl = URL.createObjectURL(blob)
+        setAudioUrl(newAudioUrl)
+        
+        const audio = new Audio(newAudioUrl)
+        setArrayOfAudio(prev => [
+          ...prev,
+          audio
+        ])
+      }
       
-      const audio = new Audio(newAudioUrl)
-      setArrayOfAudio(prev => [
-        ...prev,
-        audio
-      ])
       // audio.play()
 
 
