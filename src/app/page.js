@@ -13,8 +13,8 @@ export default function TTS() {
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
 
-  const [arrayOfAudio, setArrayOfAudio] = useState([])
-  const audioCache = useRef(null)
+  // const [arrayOfAudio, setArrayOfAudio] = useState([])
+  // const audioCache = useRef(null)
 
 
   async function loadTTSModel() {
@@ -37,10 +37,6 @@ export default function TTS() {
     }
   }
 
-  function playAudio(index) {
-    arrayOfAudio[index].play()
-  }
-
   function splitString(textToSplit) {
     let arraysToGenerate = []
     let tempTextToSplit = textToSplit
@@ -59,7 +55,9 @@ export default function TTS() {
         }
         i++
       }
-      arraysToGenerate.push(tempTextToSplit)
+      if (tempTextToSplit.length > 0) {
+        arraysToGenerate.push(tempTextToSplit)
+      }
       console.log('arraysToGenerate')
       console.log(arraysToGenerate)
       console.log('tempTextToSplit')
@@ -69,63 +67,75 @@ export default function TTS() {
     return arraysToGenerate
   }
 
-  async function generateAudio() {
-  if (!ttsModel.current) {
-    setStatus('Wait for model to load');
-    return;
+  async function transferToAudio(buffer) {
+    const blob = new Blob([buffer], { type: 'audio/wav' })
+    const newAudioUrl = URL.createObjectURL(blob)
+    return newAudioUrl
   }
 
-  try {
-    setStatus('Generating...');
-    let fullRawAudio = null; // Raw PCM accumulator (assuming Float32Array)
-    const sampleRate = 24000; // Or collect from first result
-
-    const arraysToGenerate = splitString(textInput);
-    for (let i = 0; i < arraysToGenerate.length; i++) {
-      const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' });
-      
-      if (!fullRawAudio) {
-        fullRawAudio = result.audio; // First chunk's raw (Float32Array)
-      } else {
-        // Append raw audio samples
-        const combined = new Float32Array(fullRawAudio.length + result.audio.length);
-        combined.set(fullRawAudio, 0);
-        combined.set(result.audio, fullRawAudio.length);
-        fullRawAudio = combined;
-      }
-      console.log(i)
+  function combineBuffer(oldBuffer, newBuffer) {
+    if (!oldBuffer) {
+      console.log('new fullRawAudio')
+      return newBuffer.audio
     }
-
-    // Generate one full WAV from combined raw
-    const fullWavBuffer = generateWave(fullRawAudio, sampleRate);
-    setBufferAudio(fullWavBuffer); // Or directly set audio here
-    setStatus('Audio Generated');
-  } catch (error) {
-    console.error(`Error generating audio: ${error}`);
-    setStatus(`Error: ${error.message}`);
+    const combined = new Float32Array(oldBuffer.length + newBuffer.audio.length)
+    combined.set(oldBuffer, 0)
+    combined.set(newBuffer.audio, oldBuffer.length)
+    return combined
   }
-}
-
-// Updated useEffect for audio src + cleanup
-useEffect(() => {
-  if (bufferAudio) {
-    // Revoke old URL if exists
-    if (audio) {
-      URL.revokeObjectURL(audio);
+  async function generateAudio() {
+    if (!ttsModel.current) {
+      setStatus('Wait for model to load')
+      return
     }
     
-    const blob = new Blob([bufferAudio], { type: 'audio/wav' });
-    const newUrl = URL.createObjectURL(blob);
-    setAudio(newUrl);
-  }
-}, [bufferAudio]);
+    try {
+      let fullRawAudio = null
+      let arraysToGenerate = splitString(textInput)
+      console.log(arraysToGenerate.length)
+      for (let i = 0; i < arraysToGenerate.length; i++) {
+        const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
+        // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
+        fullRawAudio = combineBuffer(fullRawAudio, result)
+        // setAudio(newAudioUrl)
+        // setBufferAudio(prev => {
+        //   if (!prev) return wavBuffer
 
-// Optional: Cleanup on unmount/component destroy
-useEffect(() => {
-  return () => {
-    if (audio) URL.revokeObjectURL(audio);
-  };
-}, [audio]); // Or run on every audio change
+        //   const prevArray = new Uint8Array(prev)
+        //   const newArray = new Uint8Array(wavBuffer)
+        //   const combined = new Uint8Array(prevArray.length + newArray.length)
+
+        //   combined.set(prevArray, 0)
+        //   combined.set(newArray, prevArray.length)
+
+        //   return combined.buffer
+        // })
+
+        if (audio) {
+          URL.revokeObjectURL(audio)
+        }
+        // console.log('before generate wav')
+        const bufferWav = generateWave(fullRawAudio, 24000)
+        // console.log('after generate wav')
+        const blob = new Blob([bufferWav], { type: 'audio/wav' })
+        const newAudioUrl = URL.createObjectURL(blob)
+        // const newAudioUrl = transferToAudio(bufferWav)
+        setAudio(newAudioUrl)
+        console.log(i)
+
+        
+        // const audio = new Audio(newAudioUrl)
+        // setArrayOfAudio(prev => [
+        //   ...prev,
+        //   audio
+        // ])
+      }
+
+      setStatus('Audio Generated')
+    } catch (error) {
+      console.error(`error generating audio: ${error}`)
+    }
+  }
 
   useEffect(() => {
     loadTTSModel()
@@ -161,8 +171,7 @@ useEffect(() => {
       </div>
       {/* {arrayOfAudio.map((audio, key) => (
         <div key={key}>
-          Au
-          dio Piece {key}
+          Audio Piece {key}
           <br></br>
           <audio controls src={audio.src}></audio>
         </div>
