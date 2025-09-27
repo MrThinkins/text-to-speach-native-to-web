@@ -12,6 +12,7 @@ export default function TTS() {
   const [audio, setAudio] = useState(null)
   const audioRef = useRef(null)
   const currentTime = useRef(0)
+  const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
 
@@ -95,6 +96,9 @@ export default function TTS() {
       let fullRawAudio = null
       let arraysToGenerate = splitString(textInput)
       console.log(arraysToGenerate.length)
+      if (audio) {
+          URL.revokeObjectURL(audio)
+        }
       for (let i = 0; i < arraysToGenerate.length; i++) {
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
         // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
@@ -113,20 +117,23 @@ export default function TTS() {
         //   return combined.buffer
         // })
 
-        if (audio) {
-          URL.revokeObjectURL(audio)
-        }
-        // console.log('before generate wav')
-        const bufferWav = generateWave(fullRawAudio, 24000)
-        // console.log('after generate wav')
-        const blob = new Blob([bufferWav], { type: 'audio/wav' })
-        const newAudioUrl = URL.createObjectURL(blob)
-        // const newAudioUrl = transferToAudio(bufferWav)
-        currentTime.current = audioRef.current?.currentTime || 0
-        console.log(`currentTime: ${currentTime}`)
-        setAudio(newAudioUrl)
+        // if (audio) {
+        //   URL.revokeObjectURL(audio)
+        // }
+        // // console.log('before generate wav')
+        // const bufferWav = generateWave(fullRawAudio, 24000)
+        // // console.log('after generate wav')
+        // const blob = new Blob([bufferWav], { type: 'audio/wav' })
+        // const newAudioUrl = URL.createObjectURL(blob)
+        // // const newAudioUrl = transferToAudio(bufferWav)
+        // currentTime.current = audioRef.current?.currentTime || 0
+        // console.log(`currentTime: ${currentTime.current}`)
+        // setAudio(newAudioUrl)
         console.log(i)
 
+        // if (audio) {
+        //   URL.revokeObjectURL(audio)
+        // }
         
         // const audio = new Audio(newAudioUrl)
         // setArrayOfAudio(prev => [
@@ -134,6 +141,19 @@ export default function TTS() {
         //   audio
         // ])
       }
+
+      if (audio) {
+        URL.revokeObjectURL(audio)
+      }
+      // console.log('before generate wav')
+      const bufferWav = generateWave(fullRawAudio, 24000)
+      // console.log('after generate wav')
+      const blob = new Blob([bufferWav], { type: 'audio/wav' })
+      const newAudioUrl = URL.createObjectURL(blob)
+      // const newAudioUrl = transferToAudio(bufferWav)
+      currentTime.current = audioRef.current?.currentTime || 0
+      console.log(`currentTime: ${currentTime}`)
+      setAudio(newAudioUrl)
 
       setStatus('Audio Generated')
     } catch (error) {
@@ -144,17 +164,29 @@ export default function TTS() {
   useEffect(() => {
     if (!audio || !audioRef.current) return
     const audioElement = audioRef.current
-
-    function loadAndPlay() {
-      audioElement.currentTime = currentTime.current
-      audioElement.play().catch(e => console.warn(e))
-    }
-    if (audioElement.readyState >= 2) {
-      loadAndPlay
-    } else {
-      audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
-    }
-    return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
+    
+    
+      function loadAndPlay() {
+        console.log('audioRef.current')
+        console.log(currentTime.current)
+        console.log('audioElement.currentTime')
+        console.log(audioElement.duration)
+        console.log('difference')
+        console.log(audioElement.duration - currentTime.current)
+        // disabling this for now, but it does seem to work?
+        // if (audioE lement.duration - currentTime.current < 10) {
+          audioElement.currentTime = currentTime.current
+          audioElement.play().catch(e => console.warn(e))
+          setTimeOfLastUpdate(currentTime.current)
+        // }
+      }
+      if (audioElement.readyState >= 2) {
+        loadAndPlay
+      } else {
+        audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
+      }
+      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
+    
   }, [audio])
   
   useEffect(() => {
