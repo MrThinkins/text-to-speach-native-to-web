@@ -10,6 +10,8 @@ export default function TTS() {
   const [status, setStatus] = useState('loading')
   const [textInput, setTextInput] = useState('This is the default text for this text input to be replaced later. This is the default text for this text input to be replaced later. This is the default text for this text input to be replaced later.')
   const [audio, setAudio] = useState(null)
+  const audioRef = useRef(null)
+  const currentTime = useRef(0)
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
 
@@ -120,6 +122,8 @@ export default function TTS() {
         const blob = new Blob([bufferWav], { type: 'audio/wav' })
         const newAudioUrl = URL.createObjectURL(blob)
         // const newAudioUrl = transferToAudio(bufferWav)
+        currentTime.current = audioRef.current?.currentTime || 0
+        console.log(`currentTime: ${currentTime}`)
         setAudio(newAudioUrl)
         console.log(i)
 
@@ -136,7 +140,23 @@ export default function TTS() {
       console.error(`error generating audio: ${error}`)
     }
   }
+  
+  useEffect(() => {
+    if (!audio || !audioRef.current) return
+    const audioElement = audioRef.current
 
+    function loadAndPlay() {
+      audioElement.currentTime = currentTime.current
+      audioElement.play().catch(e => console.warn(e))
+    }
+    if (audioElement.readyState >= 2) {
+      loadAndPlay
+    } else {
+      audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
+    }
+    return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
+  }, [audio])
+  
   useEffect(() => {
     loadTTSModel()
   }, [])
@@ -166,7 +186,7 @@ export default function TTS() {
         
         Generated Audio
         <br></br>
-        <audio controls src={audio}></audio>
+        <audio ref={audioRef} controls src={audio}></audio>
         {/* <audio controls src={audioBuffer}></audio> */}
       </div>
       {/* {arrayOfAudio.map((audio, key) => (
