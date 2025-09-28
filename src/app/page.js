@@ -15,7 +15,7 @@ export default function TTS() {
   const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
-  const bufferWav = useRef([])
+  let newAudioUrls = []
 
   // const [arrayOfAudio, setArrayOfAudio] = useState([])
   // const audioCache = useRef(null)
@@ -101,6 +101,9 @@ export default function TTS() {
           URL.revokeObjectURL(audio)
         }
       for (let i = 0; i < arraysToGenerate.length; i++) {
+        // if (newAudioUrls.length > 1) {
+        //   newAudioUrls.splice(0, newAudioUrls.length - 1)
+        // }
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
         // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
         fullRawAudio = combineBuffer(fullRawAudio, result)
@@ -122,20 +125,30 @@ export default function TTS() {
           URL.revokeObjectURL(audio)
           console.log('revoked audio')
         }
-        const bufferWav = 
-        (fullRawAudio, 24000)
+        const bufferWav = generateWave(fullRawAudio, 24000)
         const blob = new Blob([bufferWav], { type: 'audio/wav' })
-        const newAudioUrl = URL.createObjectURL(blob)
+        
         currentTime.current = audioRef.current?.currentTime || 0
         console.log(`currentTime: ${currentTime.current}`)
-        setAudio(() => {
-          const toReturn = newAudioUrl
-          if (newAudioUrl) {
-            URL.revokeObjectURL(newAudioUrl)
-            console.log('revokes new')
-          }
-          return toReturn
-        })
+        if (newAudioUrls.length > 0) {
+          newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+        }
+        newAudioUrls = []
+        newAudioUrls.push(URL.createObjectURL(blob))
+        console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+        setAudio(newAudioUrls[newAudioUrls.length - 1])
+
+        // setAudio(() => {
+        //   const toReturn = newAudioUrl
+        //   if (newAudioUrl) {
+        //     URL.revokeObjectURL(newAudioUrl)
+        //     console.log('revokes new')
+        //   }
+        //   return toReturn
+        // })
+        
+        // const newAudioUrl = URL.createObjectURL(blob)
+        // setAudio(newAudioUrl)
         console.log(i)
         
         
