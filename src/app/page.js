@@ -15,6 +15,7 @@ export default function TTS() {
   const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
+  const bufferWav = useRef([])
 
   // const [arrayOfAudio, setArrayOfAudio] = useState([])
   // const audioCache = useRef(null)
@@ -117,19 +118,27 @@ export default function TTS() {
         //   return combined.buffer
         // })
 
-        // if (audio) {
-        //   URL.revokeObjectURL(audio)
-        // }
-        // // console.log('before generate wav')
-        // const bufferWav = generateWave(fullRawAudio, 24000)
-        // // console.log('after generate wav')
-        // const blob = new Blob([bufferWav], { type: 'audio/wav' })
-        // const newAudioUrl = URL.createObjectURL(blob)
-        // // const newAudioUrl = transferToAudio(bufferWav)
-        // currentTime.current = audioRef.current?.currentTime || 0
-        // console.log(`currentTime: ${currentTime.current}`)
-        // setAudio(newAudioUrl)
+        if (audio) {
+          URL.revokeObjectURL(audio)
+          console.log('revoked audio')
+        }
+        const bufferWav = 
+        (fullRawAudio, 24000)
+        const blob = new Blob([bufferWav], { type: 'audio/wav' })
+        const newAudioUrl = URL.createObjectURL(blob)
+        currentTime.current = audioRef.current?.currentTime || 0
+        console.log(`currentTime: ${currentTime.current}`)
+        setAudio(() => {
+          const toReturn = newAudioUrl
+          if (newAudioUrl) {
+            URL.revokeObjectURL(newAudioUrl)
+            console.log('revokes new')
+          }
+          return toReturn
+        })
         console.log(i)
+        
+        
 
         // if (audio) {
         //   URL.revokeObjectURL(audio)
@@ -142,18 +151,18 @@ export default function TTS() {
         // ])
       }
 
-      if (audio) {
-        URL.revokeObjectURL(audio)
-      }
-      // console.log('before generate wav')
-      const bufferWav = generateWave(fullRawAudio, 24000)
-      // console.log('after generate wav')
-      const blob = new Blob([bufferWav], { type: 'audio/wav' })
-      const newAudioUrl = URL.createObjectURL(blob)
-      // const newAudioUrl = transferToAudio(bufferWav)
-      currentTime.current = audioRef.current?.currentTime || 0
-      console.log(`currentTime: ${currentTime}`)
-      setAudio(newAudioUrl)
+      // if (audio) {
+      //   URL.revokeObjectURL(audio)
+      // }
+      // // console.log('before generate wav')
+      // const bufferWav = generateWave(fullRawAudio, 24000)
+      // // console.log('after generate wav')
+      // const blob = new Blob([bufferWav], { type: 'audio/wav' })
+      // const newAudioUrl = URL.createObjectURL(blob)
+      // // const newAudioUrl = transferToAudio(bufferWav)
+      // currentTime.current = audioRef.current?.currentTime || 0
+      // console.log(`currentTime: ${currentTime}`)
+      // setAudio(newAudioUrl)
 
       setStatus('Audio Generated')
     } catch (error) {
