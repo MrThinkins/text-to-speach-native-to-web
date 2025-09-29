@@ -136,6 +136,7 @@ export default function TTS() {
         newAudioUrls = []
         newAudioUrls.push(URL.createObjectURL(blob))
         console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+        // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
         setAudio(newAudioUrls[newAudioUrls.length - 1])
 
         // setAudio(() => {
@@ -149,7 +150,7 @@ export default function TTS() {
         
         // const newAudioUrl = URL.createObjectURL(blob)
         // setAudio(newAudioUrl)
-        console.log(i)
+        console.log('i: ' + i)
         
         
 
@@ -164,19 +165,6 @@ export default function TTS() {
         // ])
       }
 
-      // if (audio) {
-      //   URL.revokeObjectURL(audio)
-      // }
-      // // console.log('before generate wav')
-      // const bufferWav = generateWave(fullRawAudio, 24000)
-      // // console.log('after generate wav')
-      // const blob = new Blob([bufferWav], { type: 'audio/wav' })
-      // const newAudioUrl = URL.createObjectURL(blob)
-      // // const newAudioUrl = transferToAudio(bufferWav)
-      // currentTime.current = audioRef.current?.currentTime || 0
-      // console.log(`currentTime: ${currentTime}`)
-      // setAudio(newAudioUrl)
-
       setStatus('Audio Generated')
     } catch (error) {
       console.error(`error generating audio: ${error}`)
@@ -184,30 +172,39 @@ export default function TTS() {
   }
   
   useEffect(() => {
-    if (!audio || !audioRef.current) return
+    if (!audio || !audioRef.current) {
+      // setAudio(bufferAudio)
+      return
+    }
     const audioElement = audioRef.current
+    console.log('audioRef.current')
+    console.log(currentTime.current)
+    console.log('audioElement.currentTime')
+    console.log(audioElement.duration)
+    console.log('difference')
+    console.log(audioElement.duration - currentTime.current)
     
-    
-      function loadAndPlay() {
-        console.log('audioRef.current')
-        console.log(currentTime.current)
-        console.log('audioElement.currentTime')
-        console.log(audioElement.duration)
-        console.log('difference')
-        console.log(audioElement.duration - currentTime.current)
-        // disabling this for now, but it does seem to work?
-        // if (audioE lement.duration - currentTime.current < 10) {
-          audioElement.currentTime = currentTime.current
-          audioElement.play().catch(e => console.warn(e))
-          setTimeOfLastUpdate(currentTime.current)
-        // }
-      }
+    function loadAndPlay() {
+      
+      // disabling this for now, but it does seem to work?
+      // if (audioElement.duration - currentTime.current < 20) {
+        // console.log('inside')
+        audioElement.currentTime = currentTime.current
+        audioElement.play().catch(e => console.warn(e))
+        setTimeOfLastUpdate(currentTime.current)
+        
+      // }
+    }
+    // if (audioElement.duration - currentTime.current < 20) {
+      setAudio(bufferAudio)
       if (audioElement.readyState >= 2) {
-        loadAndPlay
+        loadAndPlay()
+        
       } else {
-        audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
+        audioElement.addEventListener('loadedmetadata', loadAndPlay(), { once: true })
       }
-      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
+      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay())
+    // }
     
   }, [audio])
   
