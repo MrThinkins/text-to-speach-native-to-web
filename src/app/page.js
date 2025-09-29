@@ -101,13 +101,10 @@ export default function TTS() {
           URL.revokeObjectURL(audio)
         }
       for (let i = 0; i < arraysToGenerate.length; i++) {
-        // if (newAudioUrls.length > 1) {
-        //   newAudioUrls.splice(0, newAudioUrls.length - 1)
-        // }
+
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
         // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
         fullRawAudio = combineBuffer(fullRawAudio, result)
-        // setAudio(newAudioUrl)
         // setBufferAudio(prev => {
         //   if (!prev) return wavBuffer
 
@@ -139,30 +136,8 @@ export default function TTS() {
         // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
         setAudio(newAudioUrls[newAudioUrls.length - 1])
 
-        // setAudio(() => {
-        //   const toReturn = newAudioUrl
-        //   if (newAudioUrl) {
-        //     URL.revokeObjectURL(newAudioUrl)
-        //     console.log('revokes new')
-        //   }
-        //   return toReturn
-        // })
-        
-        // const newAudioUrl = URL.createObjectURL(blob)
-        // setAudio(newAudioUrl)
         console.log('i: ' + i)
-        
-        
-
-        // if (audio) {
-        //   URL.revokeObjectURL(audio)
-        // }
-        
-        // const audio = new Audio(newAudioUrl)
-        // setArrayOfAudio(prev => [
-        //   ...prev,
-        //   audio
-        // ])
+                
       }
 
       setStatus('Audio Generated')
