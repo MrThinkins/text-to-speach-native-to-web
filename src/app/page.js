@@ -152,15 +152,15 @@ export default function TTS() {
       return
     }
     const audioElement = audioRef.current
-    console.log('audioRef.current')
-    console.log(currentTime.current)
-    console.log('audioElement.currentTime')
-    console.log(audioElement.duration)
-    console.log('difference')
-    console.log(audioElement.duration - currentTime.current)
     
     function loadAndPlay() {
       
+      console.log('currentTime.current')
+      console.log(currentTime.current)
+      console.log('audioElement.duration')
+      console.log(audioElement.duration)
+      console.log('difference')
+      console.log(audioElement.duration - currentTime.current)
       // disabling this for now, but it does seem to work?
       // if (audioElement.duration - currentTime.current < 20) {
         // console.log('inside')
@@ -171,14 +171,14 @@ export default function TTS() {
       // }
     }
     // if (audioElement.duration - currentTime.current < 20) {
-      setAudio(bufferAudio)
+      // setAudio(bufferAudio)
       if (audioElement.readyState >= 2) {
         loadAndPlay()
         
       } else {
-        audioElement.addEventListener('loadedmetadata', loadAndPlay(), { once: true })
+        audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
       }
-      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay())
+      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
     // }
     
   }, [audio])
