@@ -16,6 +16,7 @@ export default function TTS() {
   const ttsModel = useRef(null)
   const [bufferAudio, setBufferAudio] = useState(null)
   let newAudioUrls = []
+  const fullRawAudio = useRef(null)
 
   // const [arrayOfAudio, setArrayOfAudio] = useState([])
   // const audioCache = useRef(null)
@@ -44,6 +45,7 @@ export default function TTS() {
   function splitString(textToSplit) {
     let arraysToGenerate = []
     let tempTextToSplit = textToSplit
+    
     while (tempTextToSplit.length > 0) {
       // let chunk = ''
       let i = 0
@@ -71,12 +73,6 @@ export default function TTS() {
     return arraysToGenerate
   }
 
-  async function transferToAudio(buffer) {
-    const blob = new Blob([buffer], { type: 'audio/wav' })
-    const newAudioUrl = URL.createObjectURL(blob)
-    return newAudioUrl
-  }
-
   function combineBuffer(oldBuffer, newBuffer) {
     if (!oldBuffer) {
       console.log('new fullRawAudio')
@@ -94,7 +90,7 @@ export default function TTS() {
     }
     
     try {
-      let fullRawAudio = null
+      fullRawAudio.current = null
       let arraysToGenerate = splitString(textInput)
       console.log(arraysToGenerate.length)
       if (audio) {
@@ -104,37 +100,28 @@ export default function TTS() {
 
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
         // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
-        fullRawAudio = combineBuffer(fullRawAudio, result)
-        // setBufferAudio(prev => {
-        //   if (!prev) return wavBuffer
+        fullRawAudio.current = combineBuffer(fullRawAudio.current, result)
+        // console.log(fullRawAudio)
 
-        //   const prevArray = new Uint8Array(prev)
-        //   const newArray = new Uint8Array(wavBuffer)
-        //   const combined = new Uint8Array(prevArray.length + newArray.length)
 
-        //   combined.set(prevArray, 0)
-        //   combined.set(newArray, prevArray.length)
 
-        //   return combined.buffer
-        // })
-
-        if (audio) {
-          URL.revokeObjectURL(audio)
-          console.log('revoked audio')
-        }
-        const bufferWav = generateWave(fullRawAudio, 24000)
-        const blob = new Blob([bufferWav], { type: 'audio/wav' })
+        // if (audio) {
+        //   URL.revokeObjectURL(audio)
+        //   console.log('revoked audio')
+        // }
+        // const bufferWav = generateWave(fullRawAudio, 24000)
+        // const blob = new Blob([bufferWav], { type: 'audio/wav' })
         
-        currentTime.current = audioRef.current?.currentTime || 0
-        console.log(`currentTime: ${currentTime.current}`)
-        if (newAudioUrls.length > 0) {
-          newAudioUrls.forEach(url => URL.revokeObjectURL(url))
-        }
-        newAudioUrls = []
-        newAudioUrls.push(URL.createObjectURL(blob))
-        console.log(`newAudioUrls.length ${newAudioUrls.length}`)
-        // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
-        setAudio(newAudioUrls[newAudioUrls.length - 1])
+        // currentTime.current = audioRef.current?.currentTime || 0
+        // console.log(`currentTime: ${currentTime.current}`)
+        // if (newAudioUrls.length > 0) {
+        //   newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+        // }
+        // newAudioUrls = []
+        // newAudioUrls.push(URL.createObjectURL(blob))
+        // console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+        // // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+        // setAudio(newAudioUrls[newAudioUrls.length - 1])
 
         console.log('i: ' + i)
                 
@@ -147,41 +134,92 @@ export default function TTS() {
   }
   
   useEffect(() => {
-    if (!audio || !audioRef.current) {
-      // setAudio(bufferAudio)
-      return
-    }
-    const audioElement = audioRef.current
     
-    function loadAndPlay() {
-      
-      console.log('currentTime.current')
-      console.log(currentTime.current)
-      console.log('audioElement.duration')
-      console.log(audioElement.duration)
-      console.log('difference')
-      console.log(audioElement.duration - currentTime.current)
-      // disabling this for now, but it does seem to work?
-      // if (audioElement.duration - currentTime.current < 20) {
-        // console.log('inside')
-        audioElement.currentTime = currentTime.current
-        audioElement.play().catch(e => console.warn(e))
-        setTimeOfLastUpdate(currentTime.current)
+    const interval = setInterval(() => {
+      if (!audio || !audioRef.current) {
+        console.log('oops')
+        console.lol
+        if (fullRawAudio.current == null) {
+          console.log(fullRawAudio.current)
+          console.log('double oops')
+          return
+        }
+        console.log('yoyo')
+        console.log(`fullRawAudio ${fullRawAudio.current}`)
+        if (audio) {
+          URL.revokeObjectURL(audio)
+          console.log('revoked audio')
+        }
+        const bufferWav = generateWave(fullRawAudio.current, 24000)
+        const blob = new Blob([bufferWav], { type: 'audio/wav' })
         
-      // }
-    }
-    // if (audioElement.duration - currentTime.current < 20) {
-      // setAudio(bufferAudio)
-      if (audioElement.readyState >= 2) {
-        loadAndPlay()
-        
-      } else {
-        audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
+        currentTime.current = audioRef.current?.currentTime || 0
+        console.log(`currentTime: ${currentTime.current}`)
+        if (newAudioUrls.length > 0) {
+          newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+        }
+        newAudioUrls = []
+        newAudioUrls.push(URL.createObjectURL(blob))
+        console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+        // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+        setAudio(newAudioUrls[newAudioUrls.length - 1])
+        return
       }
-      return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
-    // }
-    
-  }, [audio])
+
+
+      if (audio) {
+        URL.revokeObjectURL(audio)
+        console.log('revoked audio')
+      }
+      const bufferWav = generateWave(fullRawAudio.current, 24000)
+      const blob = new Blob([bufferWav], { type: 'audio/wav' })
+      
+      currentTime.current = audioRef.current?.currentTime || 0
+      console.log(`currentTime: ${currentTime.current}`)
+      if (newAudioUrls.length > 0) {
+        newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+      }
+      newAudioUrls = []
+      newAudioUrls.push(URL.createObjectURL(blob))
+      console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+      // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+      setAudio(newAudioUrls[newAudioUrls.length - 1])
+
+      const audioElement = audioRef.current
+
+
+      
+      function loadAndPlay() {
+        
+        console.log('currentTime.current')
+        console.log(currentTime.current)
+        console.log('audioElement.duration')
+        console.log(audioElement.duration)
+        console.log('difference')
+        console.log(audioElement.duration - currentTime.current)
+        // disabling this for now, but it does seem to work?
+        // if (audioElement.duration - currentTime.current < 20) {
+          // console.log('inside')
+          audioElement.currentTime = currentTime.current
+          audioElement.play().catch(e => console.warn(e))
+          setTimeOfLastUpdate(currentTime.current)
+        
+        // }
+      }
+      // if (audioElement.duration - currentTime.current < 20) {
+        // setAudio(bufferAudio)
+        if (audioElement.readyState >= 2) {
+          loadAndPlay()
+          
+        } else {
+          audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
+        }
+        return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
+      // }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
   
   useEffect(() => {
     loadTTSModel()
