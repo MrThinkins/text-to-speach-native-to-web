@@ -97,26 +97,14 @@ export default function TTS() {
 
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
         fullRawAudio.current = combineBuffer(fullRawAudio.current, result)
-        // console.log(fullRawAudio)
-        // if (audio) {
-        //   URL.revokeObjectURL(audio)
-        //   console.log('revoked audio')
-        // }
-        // const bufferWav = generateWave(fullRawAudio, 24000)
+
         const duration = fullRawAudio.current.length / 24000
         timeArrays.current.push(duration)
         console.log(timeArrays)
-        // const blob = new Blob([bufferWav], { type: 'audio/wav' })
-        
-        // const audio = new Audio()
-        // audio.src = URL.createObjectURL(blob)
-
-        // audio.addEventListener('loadedmetadata', () => {
-        //   timeArrays.push(audio.duration)
-        //   console.log(timeArrays)
-        //   URL.revokeObjectURL(audio.src)
-        // })
-
+  
+        if (i == 2) {
+          updateAudio()
+        }
         console.log('i: ' + i)
                 
       }
@@ -156,20 +144,10 @@ export default function TTS() {
 
       if (!audio || !audioRef.current) {
         console.log('oops')
-        console.log('audioRef')
-        console.log(audioRef)
-        console.log('audio')
-        console.log(audio)
-        console.lol
         if (fullRawAudio.current == null) {
           console.log(fullRawAudio.current)
           console.log('double oops')
           return
-        }
-        console.log(timeArrays.current.length)
-        if (timeArrays.current.length > 1 && !audio) {
-          console.log('yoyo')
-          updateAudio()
         }
         // console.log(`fullRawAudio ${fullRawAudio.current}`)
         return
@@ -238,7 +216,7 @@ export default function TTS() {
     }, 2000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [audio])
   
   useEffect(() => {
     loadTTSModel()
