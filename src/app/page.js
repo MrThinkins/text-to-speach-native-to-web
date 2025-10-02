@@ -17,10 +17,7 @@ export default function TTS() {
   const [bufferAudio, setBufferAudio] = useState(null)
   let newAudioUrls = []
   const fullRawAudio = useRef(null)
-
-  // const [arrayOfAudio, setArrayOfAudio] = useState([])
-  // const audioCache = useRef(null)
-
+  const timeArrays = useRef([])
 
   async function loadTTSModel() {
     try {
@@ -99,29 +96,26 @@ export default function TTS() {
       for (let i = 0; i < arraysToGenerate.length; i++) {
 
         const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
-        // const wavBuffer = generateWave(result.audio, result.sampleRate || 24000)
         fullRawAudio.current = combineBuffer(fullRawAudio.current, result)
         // console.log(fullRawAudio)
-
-
-
         // if (audio) {
         //   URL.revokeObjectURL(audio)
         //   console.log('revoked audio')
         // }
         // const bufferWav = generateWave(fullRawAudio, 24000)
+        const duration = fullRawAudio.current.length / 24000
+        timeArrays.current.push(duration)
+        console.log(timeArrays)
         // const blob = new Blob([bufferWav], { type: 'audio/wav' })
         
-        // currentTime.current = audioRef.current?.currentTime || 0
-        // console.log(`currentTime: ${currentTime.current}`)
-        // if (newAudioUrls.length > 0) {
-        //   newAudioUrls.forEach(url => URL.revokeObjectURL(url))
-        // }
-        // newAudioUrls = []
-        // newAudioUrls.push(URL.createObjectURL(blob))
-        // console.log(`newAudioUrls.length ${newAudioUrls.length}`)
-        // // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
-        // setAudio(newAudioUrls[newAudioUrls.length - 1])
+        // const audio = new Audio()
+        // audio.src = URL.createObjectURL(blob)
+
+        // audio.addEventListener('loadedmetadata', () => {
+        //   timeArrays.push(audio.duration)
+        //   console.log(timeArrays)
+        //   URL.revokeObjectURL(audio.src)
+        // })
 
         console.log('i: ' + i)
                 
@@ -132,20 +126,64 @@ export default function TTS() {
       console.error(`error generating audio: ${error}`)
     }
   }
+
+  function updateAudio() {
+    console.log('updating audio')
+    if (audio) {
+      URL.revokeObjectURL(audio)
+      console.log('revoked audio')
+    }
+    const bufferWav = generateWave(fullRawAudio.current, 24000)
+    const blob = new Blob([bufferWav], { type: 'audio/wav' })
+    
+    currentTime.current = audioRef.current?.currentTime || 0
+    console.log(`currentTime: ${currentTime.current}`)
+    // if (newAudioUrls.length > 0) {
+    //   newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+    // }
+    // newAudioUrls = []
+    newAudioUrls.push(URL.createObjectURL(blob))
+    console.log(`newAudioUrls.length ${newAudioUrls.length}`)
+    // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+    setAudio(newAudioUrls[newAudioUrls.length - 1])
+  }
+  
   
   useEffect(() => {
     
     const interval = setInterval(() => {
+      // if (!audio || !audioRef.current) {
+
       if (!audio || !audioRef.current) {
         console.log('oops')
+        console.log('audioRef')
+        console.log(audioRef)
+        console.log('audio')
+        console.log(audio)
         console.lol
         if (fullRawAudio.current == null) {
           console.log(fullRawAudio.current)
           console.log('double oops')
           return
         }
-        console.log('yoyo')
-        console.log(`fullRawAudio ${fullRawAudio.current}`)
+        console.log(timeArrays.current.length)
+        if (timeArrays.current.length > 1 && !audio) {
+          console.log('yoyo')
+          updateAudio()
+        }
+        // console.log(`fullRawAudio ${fullRawAudio.current}`)
+        return
+      }
+      const audioElement = audioRef.current
+
+      console.log('currentTime.current')
+      console.log(currentTime.current)
+      console.log('audioElement.duration')
+      console.log(audioElement.duration)
+      console.log('difference')
+      console.log(audioElement.duration - currentTime.current)
+
+      function loadAudio() {
         if (audio) {
           URL.revokeObjectURL(audio)
           console.log('revoked audio')
@@ -163,29 +201,10 @@ export default function TTS() {
         console.log(`newAudioUrls.length ${newAudioUrls.length}`)
         // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
         setAudio(newAudioUrls[newAudioUrls.length - 1])
-        return
-      }
 
-
-      if (audio) {
-        URL.revokeObjectURL(audio)
-        console.log('revoked audio')
+        
       }
-      const bufferWav = generateWave(fullRawAudio.current, 24000)
-      const blob = new Blob([bufferWav], { type: 'audio/wav' })
-      
-      currentTime.current = audioRef.current?.currentTime || 0
-      console.log(`currentTime: ${currentTime.current}`)
-      if (newAudioUrls.length > 0) {
-        newAudioUrls.forEach(url => URL.revokeObjectURL(url))
-      }
-      newAudioUrls = []
-      newAudioUrls.push(URL.createObjectURL(blob))
-      console.log(`newAudioUrls.length ${newAudioUrls.length}`)
-      // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
-      setAudio(newAudioUrls[newAudioUrls.length - 1])
-
-      const audioElement = audioRef.current
+      // loadAudio()
 
 
       
@@ -216,7 +235,7 @@ export default function TTS() {
         }
         return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
       // }
-    }, 1000)
+    }, 2000)
 
     return () => clearInterval(interval)
   }, [])
@@ -251,15 +270,7 @@ export default function TTS() {
         Generated Audio
         <br></br>
         <audio ref={audioRef} controls src={audio}></audio>
-        {/* <audio controls src={audioBuffer}></audio> */}
       </div>
-      {/* {arrayOfAudio.map((audio, key) => (
-        <div key={key}>
-          Audio Piece {key}
-          <br></br>
-          <audio controls src={audio.src}></audio>
-        </div>
-      ))} */}
       
     </div>
   )
