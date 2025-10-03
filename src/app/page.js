@@ -76,7 +76,7 @@ export default function TTS() {
         timeArrays.current.push(duration)
         console.log(timeArrays)
   
-        if (i == 2) {
+        if (i == 7) {
           updateAudio()
         }
         console.log('i: ' + i)
@@ -137,7 +137,7 @@ export default function TTS() {
       })
       
       console.log('looped')
-    }, 1000) 
+    }, 10000) 
     return () => clearInterval(interval)
   }, [])
   
@@ -165,9 +165,9 @@ export default function TTS() {
       console.log('difference')
       console.log(audioElement.duration - currentTime.current)
       
-      if (audioElement.duration - currentTime.current <= 20) {
+      // if (audioElement.duration - currentTime.current <= 20) {
         updateAudio()
-      }
+      // }
     }
   }, [checkerActivator])
 
