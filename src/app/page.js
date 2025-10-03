@@ -20,6 +20,7 @@ export default function TTS() {
   const fullRawAudio = useRef(null)
   const timeArrays = useRef([])
   const lastUsedRawAudio = useRef(null)
+  const [checkerActivator, setCheckerActivator] = useState(0)
 
   async function loadTTSModel() {
     try {
@@ -116,58 +117,59 @@ export default function TTS() {
     console.log('audioUpdated')
   }
   
+  // useEffect to activate other useEffects
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // if (checkerActivator == 0) {
+      //   const numberToChangeTo = 1
+      //   setCheckerActivator(numberToChangeTo)
+      // } else {
+      //   const numberToChangeTo = checkerActivator + 1
+      //   setCheckerActivator(numberToChangeTo) 
+      // }
+
+      setCheckerActivator(prev => {
+        if (prev == 0) {
+          return 1
+        } else {
+          return prev + 1
+        }
+      })
+      
+      console.log('looped')
+    }, 1000) 
+    return () => clearInterval(interval)
+  }, [])
   
   useEffect(() => {
-    
-    const interval = setInterval(() => {
-      // if (!audio || !audioRef.current) {
-
-      if (!audio || !audioRef.current) {
-        console.log('oops')
-        if (fullRawAudio.current == null) {
-          console.log(fullRawAudio.current)
-          console.log('double oops')
-          return
-        }
-        // console.log(`fullRawAudio ${fullRawAudio.current}`)
+    console.log('loop 2')
+    if (!audio || !audioRef.current) {
+      console.log('oops')
+      if (fullRawAudio.current == null) {
+        console.log(fullRawAudio.current)
+        console.log('double oops')
         return
       }
+      return
+    }
+    console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
+
+    if (lastUsedRawAudio.current != fullRawAudio.current) {
       
+      const audioElement = audioRef.current
+      // updateAudio()
+      console.log('currentTime.current')
+      console.log(currentTime.current)
+      console.log('audioElement.duration')
+      console.log(audioElement.duration)
+      console.log('difference')
+      console.log(audioElement.duration - currentTime.current)
       
-
-      console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
-      // if (audioElement.duration - currentTime.current < 20) {
-        // setAudio(bufferAudio)
-      if (lastUsedRawAudio.current != fullRawAudio.current) {
-        
-
-        
-        const audioElement = audioRef.current
-
-        
-
-        // updateAudio()
-        console.log('currentTime.current')
-        console.log(currentTime.current)
-        console.log('audioElement.duration')
-        console.log(audioElement.duration)
-        console.log('difference')
-        console.log(audioElement.duration - currentTime.current)
-
-        
-        if (audioElement.duration - currentTime.current <= 20) {
-          updateAudio()
-        }
-        
-        
-
-        
+      if (audioElement.duration - currentTime.current <= 20) {
+        updateAudio()
       }
-      // }
-    }, 400)
-
-    return () => clearInterval(interval)
-  }, [audio])
+    }
+  }, [checkerActivator])
 
   useEffect(() => {
     const audioElement = audioRef.current
@@ -190,7 +192,7 @@ export default function TTS() {
       audioElement.addEventListener('loadedmetadata', loadAndPlay, { once: true })
     }
     return () => audioElement.removeEventListener('loadedmetadata', loadAndPlay)
-  }, audio)
+  }, [audio])
   
   useEffect(() => {
     loadTTSModel()
