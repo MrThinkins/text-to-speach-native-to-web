@@ -13,6 +13,7 @@ export default function TTS() {
   const [audio, setAudio] = useState(null)
   const audioRef = useRef(null)
   const currentTime = useRef(0)
+  const timeOfLastUpdate = useRef(null)
   // const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
   // const [bufferAudio, setBufferAudio] = useState(null)
@@ -42,8 +43,6 @@ export default function TTS() {
     }
   }
 
-  
-
   function combineBuffer(oldBuffer, newBuffer) {
     if (!oldBuffer) {
       console.log('new fullRawAudio')
@@ -54,6 +53,7 @@ export default function TTS() {
     combined.set(newBuffer.audio, oldBuffer.length)
     return combined
   }
+
   async function generateAudio() {
     if (!ttsModel.current) {
       setStatus('Wait for model to load')
@@ -91,7 +91,6 @@ export default function TTS() {
 
   function updateAudio() {
     if (fullRawAudio.current == lastUsedRawAudio.current) {
-      currentTime.current = audioRef.current?.currentTime || 0
       return
     }
     lastUsedRawAudio.current = fullRawAudio.current
@@ -111,6 +110,7 @@ export default function TTS() {
     newAudioUrls = []
     newAudioUrls.push(URL.createObjectURL(blob))
     currentTime.current = audioRef.current?.currentTime || 0
+    timeOfLastUpdate.current = currentTime.current
     console.log(`newAudioUrls.length ${newAudioUrls.length}`)
     // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
     setAudio(newAudioUrls[newAudioUrls.length - 1])
@@ -137,10 +137,25 @@ export default function TTS() {
       })
       
       console.log('looped')
-    }, 10000) 
+    }, 150) 
     return () => clearInterval(interval)
   }, [])
   
+  function closeToTimeArray() {
+    const tol = 0.2
+    for (const number of timeArrays.current) {
+      // console.log(`number: ${number}`)
+      // console.log(`current time current: ${currentTime.current}`)
+      // console.log(Math.abs(currentTime.current - number))
+      // if (Math.abs(currentTime.current - number) <= tol) {
+      if (number - currentTime.current > 0.05 && number - currentTime.current <= tol) {
+        return true
+      }
+    }
+    return false
+    // return timeArrays.current.some(num => Math.abs(currentTime.current - num) <= 1)
+  }
+
   useEffect(() => {
     console.log('loop 2')
     if (!audio || !audioRef.current) {
@@ -155,18 +170,24 @@ export default function TTS() {
     console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
 
     if (lastUsedRawAudio.current != fullRawAudio.current) {
-      
-      const audioElement = audioRef.current
       // updateAudio()
-      console.log('currentTime.current')
-      console.log(currentTime.current)
-      console.log('audioElement.duration')
-      console.log(audioElement.duration)
-      console.log('difference')
-      console.log(audioElement.duration - currentTime.current)
+      // const audioElement = audioRef.current
+      
+      // console.log('currentTime.current')
+      // console.log(currentTime.current)
+      // console.log('audioElement.duration')
+      // console.log(audioElement.duration)
+      // console.log('difference')
+      // console.log(audioElement.duration - currentTime.current)
       
       // if (audioElement.duration - currentTime.current <= 20) {
+      currentTime.current = audioRef.current?.currentTime || 0
+      console.log(currentTime.current)
+      console.log('closeToTimeArray')
+      console.log(closeToTimeArray())
+      if (closeToTimeArray() && currentTime.current - timeOfLastUpdate.current >= 5) {
         updateAudio()
+      }
       // }
     }
   }, [checkerActivator])
