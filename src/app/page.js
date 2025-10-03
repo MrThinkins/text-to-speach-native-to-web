@@ -141,7 +141,7 @@ export default function TTS() {
       if (lastUsedRawAudio.current != fullRawAudio.current) {
         
 
-        updateAudio()
+        
         const audioElement = audioRef.current
 
         
@@ -154,19 +154,17 @@ export default function TTS() {
         console.log('difference')
         console.log(audioElement.duration - currentTime.current)
 
-
-        console.log('currentTime.current')
-        console.log(currentTime.current)
-        console.log('audioElement.duration')
-        console.log(audioElement.duration)
-        console.log('difference')
-        console.log(audioElement.duration - currentTime.current)
+        
+        if (audioElement.duration - currentTime.current <= 20) {
+          updateAudio()
+        }
+        
         
 
         
       }
       // }
-    }, 4000)
+    }, 400)
 
     return () => clearInterval(interval)
   }, [audio])
