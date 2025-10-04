@@ -13,6 +13,7 @@ export default function TTS() {
   const [audio, setAudio] = useState(null)
   const audioRef = useRef(null)
   const currentTime = useRef(0)
+  const currentTime2 = useRef(0)
   const timeOfLastUpdate = useRef(null)
   // const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
@@ -120,14 +121,6 @@ export default function TTS() {
   // useEffect to activate other useEffects
   useEffect(() => {
     const interval = setInterval(() => {
-      // if (checkerActivator == 0) {
-      //   const numberToChangeTo = 1
-      //   setCheckerActivator(numberToChangeTo)
-      // } else {
-      //   const numberToChangeTo = checkerActivator + 1
-      //   setCheckerActivator(numberToChangeTo) 
-      // }
-
       setCheckerActivator(prev => {
         if (prev == 0) {
           return 1
@@ -144,16 +137,11 @@ export default function TTS() {
   function closeToTimeArray() {
     const tol = 0.2
     for (const number of timeArrays.current) {
-      // console.log(`number: ${number}`)
-      // console.log(`current time current: ${currentTime.current}`)
-      // console.log(Math.abs(currentTime.current - number))
-      // if (Math.abs(currentTime.current - number) <= tol) {
-      if (number - currentTime.current > 0.05 && number - currentTime.current <= tol) {
+      if (number - currentTime2.current > 0.05 && number - currentTime2.current <= tol) {
         return true
       }
     }
     return false
-    // return timeArrays.current.some(num => Math.abs(currentTime.current - num) <= 1)
   }
 
   useEffect(() => {
@@ -169,10 +157,7 @@ export default function TTS() {
     }
     console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
 
-    if (lastUsedRawAudio.current != fullRawAudio.current) {
-      // updateAudio()
-      // const audioElement = audioRef.current
-      
+    if (lastUsedRawAudio.current != fullRawAudio.current) {      
       // console.log('currentTime.current')
       // console.log(currentTime.current)
       // console.log('audioElement.duration')
@@ -180,12 +165,11 @@ export default function TTS() {
       // console.log('difference')
       // console.log(audioElement.duration - currentTime.current)
       
-      // if (audioElement.duration - currentTime.current <= 20) {
-      currentTime.current = audioRef.current?.currentTime || 0
+      currentTime2.current = audioRef.current?.currentTime || 0
       console.log(currentTime.current)
       console.log('closeToTimeArray')
       console.log(closeToTimeArray())
-      if (closeToTimeArray() && currentTime.current - timeOfLastUpdate.current >= 5) {
+      if (closeToTimeArray() && currentTime2.current - timeOfLastUpdate.current >= 10) {
         updateAudio()
       }
       // }
