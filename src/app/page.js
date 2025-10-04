@@ -18,7 +18,7 @@ export default function TTS() {
   // const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
   // const [bufferAudio, setBufferAudio] = useState(null)
-  let newAudioUrls = []
+  const newAudioUrls = useRef([])
   const fullRawAudio = useRef(null)
   const timeArrays = useRef([])
   const lastUsedRawAudio = useRef(null)
@@ -76,7 +76,12 @@ export default function TTS() {
         const duration = fullRawAudio.current.length / 24000
         timeArrays.current.push(duration)
         console.log(timeArrays)
-  
+
+        
+        
+        // if (i % 3 == 0 || i == arraysToGenerate.length) {
+          updateAudioUrls()
+        // }
         if (i == 7) {
           updateAudio()
         }
@@ -90,8 +95,29 @@ export default function TTS() {
     }
   }
 
+  function updateAudioUrls() {
+    const bufferWav = generateWave(fullRawAudio.current, 24000)
+    const blob = new Blob([bufferWav], { type: 'audio/wav' })
+    
+    
+    
+    // if (newAudioUrls.length > 0) {
+    //   newAudioUrls.forEach(url => URL.revokeObjectURL(url))
+    // }
+    // newAudioUrls = []
+    if (newAudioUrls.current.length > 1) {
+      newAudioUrls.current.splice(0, newAudioUrls.current.length - 1).forEach(url => URL.revokeObjectURL(url))
+    }
+    console.log(`newAudioUrls.length: ${newAudioUrls.current.length}`)
+    newAudioUrls.current.push(URL.createObjectURL(blob))
+    
+    
+    console.log(`newAudioUrls.length ${newAudioUrls.current.length}`)
+  }
+  
   function updateAudio() {
     if (fullRawAudio.current == lastUsedRawAudio.current) {
+      console.log('did not update audio')
       return
     }
     lastUsedRawAudio.current = fullRawAudio.current
@@ -100,21 +126,13 @@ export default function TTS() {
       URL.revokeObjectURL(audio)
       console.log('revoked audio')
     }
-    const bufferWav = generateWave(fullRawAudio.current, 24000)
-    const blob = new Blob([bufferWav], { type: 'audio/wav' })
-    
-    
     console.log(`currentTime: ${currentTime.current}`)
-    if (newAudioUrls.length > 0) {
-      newAudioUrls.forEach(url => URL.revokeObjectURL(url))
-    }
-    newAudioUrls = []
-    newAudioUrls.push(URL.createObjectURL(blob))
+    // updateAudioUrls()
+    
+    // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+    setAudio(newAudioUrls.current[newAudioUrls.current.length - 1])
     currentTime.current = audioRef.current?.currentTime || 0
     timeOfLastUpdate.current = currentTime.current
-    console.log(`newAudioUrls.length ${newAudioUrls.length}`)
-    // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
-    setAudio(newAudioUrls[newAudioUrls.length - 1])
     console.log('audioUpdated')
   }
   
@@ -128,8 +146,7 @@ export default function TTS() {
           return prev + 1
         }
       })
-      
-      console.log('looped')
+      // console.log('looped')
     }, 150) 
     return () => clearInterval(interval)
   }, [])
@@ -145,7 +162,7 @@ export default function TTS() {
   }
 
   useEffect(() => {
-    console.log('loop 2')
+    // console.log('loop 2')
     if (!audio || !audioRef.current) {
       console.log('oops')
       if (fullRawAudio.current == null) {
@@ -155,9 +172,10 @@ export default function TTS() {
       }
       return
     }
-    console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
+    // console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
 
     if (lastUsedRawAudio.current != fullRawAudio.current) {      
+      console.log('passed 1')
       // console.log('currentTime.current')
       // console.log(currentTime.current)
       // console.log('audioElement.duration')
@@ -169,7 +187,8 @@ export default function TTS() {
       console.log(currentTime.current)
       console.log('closeToTimeArray')
       console.log(closeToTimeArray())
-      if (closeToTimeArray() && currentTime2.current - timeOfLastUpdate.current >= 10) {
+      if (closeToTimeArray() && currentTime2.current - timeOfLastUpdate.current >= 5) {
+        console.log('passed 2')
         updateAudio()
       }
       // }
