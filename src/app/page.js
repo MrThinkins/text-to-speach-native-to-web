@@ -23,6 +23,7 @@ export default function TTS() {
   const timeArrays = useRef([])
   const lastUsedRawAudio = useRef(null)
   const [checkerActivator, setCheckerActivator] = useState(0)
+  const wasPlaying = useRef(false)
 
   async function loadTTSModel() {
     try {
@@ -98,21 +99,14 @@ export default function TTS() {
   function updateAudioUrls() {
     const bufferWav = generateWave(fullRawAudio.current, 24000)
     const blob = new Blob([bufferWav], { type: 'audio/wav' })
-    
-    
-    
-    // if (newAudioUrls.length > 0) {
-    //   newAudioUrls.forEach(url => URL.revokeObjectURL(url))
-    // }
-    // newAudioUrls = []
+
     if (newAudioUrls.current.length > 1) {
       newAudioUrls.current.splice(0, newAudioUrls.current.length - 1).forEach(url => URL.revokeObjectURL(url))
     }
-    console.log(`newAudioUrls.length: ${newAudioUrls.current.length}`)
+    // console.log(`newAudioUrls.length: ${newAudioUrls.current.length}`)
     newAudioUrls.current.push(URL.createObjectURL(blob))
     
-    
-    console.log(`newAudioUrls.length ${newAudioUrls.current.length}`)
+    // console.log(`newAudioUrls.length ${newAudioUrls.current.length}`)
   }
   
   function updateAudio() {
@@ -121,18 +115,24 @@ export default function TTS() {
       return
     }
     lastUsedRawAudio.current = fullRawAudio.current
-    console.log('updating audio')
+    // console.log('updating audio')
     if (audio) {
       URL.revokeObjectURL(audio)
-      console.log('revoked audio')
+      // console.log('revoked audio')
     }
-    console.log(`currentTime: ${currentTime.current}`)
+    
+    if (audioRef.current && !audioRef.current.paused) {
+      wasPlaying.current = true
+    } else {
+      wasPlaying.current = false
+    }
+    // console.log(`currentTime: ${currentTime.current}`)
     // updateAudioUrls()
     
     // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
     setAudio(newAudioUrls.current[newAudioUrls.current.length - 1])
     currentTime.current = audioRef.current?.currentTime || 0
-    timeOfLastUpdate.current = currentTime.current
+    timeOfLastUpdate.current = Date.now() / 1000
     console.log('audioUpdated')
   }
   
@@ -164,50 +164,47 @@ export default function TTS() {
   useEffect(() => {
     // console.log('loop 2')
     if (!audio || !audioRef.current) {
-      console.log('oops')
+      // console.log('oops')
       if (fullRawAudio.current == null) {
-        console.log(fullRawAudio.current)
+        // console.log(fullRawAudio.current)
         console.log('double oops')
         return
       }
       return
     }
-    // console.log(`should have happened: ${lastUsedRawAudio.current != fullRawAudio.current}`)
 
     if (lastUsedRawAudio.current != fullRawAudio.current) {      
-      console.log('passed 1')
-      // console.log('currentTime.current')
-      // console.log(currentTime.current)
-      // console.log('audioElement.duration')
-      // console.log(audioElement.duration)
-      // console.log('difference')
-      // console.log(audioElement.duration - currentTime.current)
-      
-      currentTime2.current = audioRef.current?.currentTime || 0
-      console.log(currentTime.current)
-      console.log('closeToTimeArray')
-      console.log(closeToTimeArray())
-      if (closeToTimeArray() && currentTime2.current - timeOfLastUpdate.current >= 5) {
-        console.log('passed 2')
-        updateAudio()
+      // console.log('passed 1')
+        currentTime2.current = audioRef.current?.currentTime || 0
+
+      const timeCheck = Date.now() / 1000
+      // console.log(currentTime2.current)
+      // console.log('closeToTimeArray')
+      // console.log(closeToTimeArray())
+      if (timeCheck - timeOfLastUpdate.current >= 5) {
+        // console.log(audioRef.current.paused)
+        if (audioRef.current?.paused) {
+          console.log('audio paused, updating')
+          updateAudio()
+        } else if (closeToTimeArray()) {
+          // console.log('passed 2')
+          updateAudio()
+        }
       }
-      // }
+      
     }
   }, [checkerActivator])
 
   useEffect(() => {
+    console.log('updatePlay and spot')
     const audioElement = audioRef.current
 
     function loadAndPlay() {
-      // disabling this for now, but it does seem to work?
-      // if (audioElement.duration - currentTime.current < 20) {
-        // console.log('inside')
-        
-        audioElement.currentTime = currentTime.current
+      audioElement.currentTime = currentTime.current
+      if (wasPlaying.current) {
+        console.log('audio not paused, now unpaused')
         audioElement.play().catch(e => console.warn(e))
-        // setTimeOfLastUpdate(currentTime.current)
-      
-      // }
+      }
     }
     if (audioElement.readyState >= 2) {
       loadAndPlay()
