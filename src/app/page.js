@@ -25,6 +25,7 @@ export default function TTS() {
   const [checkerActivator, setCheckerActivator] = useState(0)
   const wasPlaying = useRef(false)
   const startWithPlaying = useRef(false)
+  const [voice, setVoice] = useState('af_heart')
 
   async function loadTTSModel() {
     try {
@@ -72,7 +73,7 @@ export default function TTS() {
         }
       for (let i = 0; i < arraysToGenerate.length; i++) {
 
-        const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: 'af_heart' })
+        const result = await ttsModel.current.generate(arraysToGenerate[i], { voice: voice })
         fullRawAudio.current = combineBuffer(fullRawAudio.current, result)
 
         const duration = fullRawAudio.current.length / 24000
@@ -239,6 +240,29 @@ export default function TTS() {
         onChange={(e) => setTextInput(e.target.value)}
       >
       </textarea>
+      <br></br>
+      <select value={voice} onChange={(e) => {setVoice(e.target.value)}}>
+        <option value="af_heart">Heart - American Female</option>
+        <option value="af_alloy">Alloy - American Female</option>
+        <option value="af_aoede">Aoede - American Female</option>
+        <option value="af_bella">Bella - American Female</option>
+        <option value="af_jessica">Jessica - American Female</option>
+        <option value="af_kore">Kore - American Female</option>
+        <option value="af_nicole">Nicole - American Female</option>
+        <option value="af_nova">Nova - American Female</option>
+        <option value="af_river">River - American Female</option>
+        <option value="af_sarah">Sarah - American Female</option>
+        <option value="af_sky">Sky - American Female</option>
+        <option value="am_adam">Adam - American Male</option>
+        <option value="am_echo">Echo - American Male</option>
+        <option value="am_eric">Eric - American Male</option>
+        <option value="am_fenrir">Fenrir - American Male</option>
+        <option value="am_liam">Liam - American Male</option>
+        <option value="am_michael">Michael - American Male</option>
+        <option value="am_onyx">Onyx - American Male</option>
+        <option value="am_puck">Puck - American Male</option>
+        <option value="am_santa">Santa - American Male</option>
+      </select>
       <br></br>
       <div>
         {status == "loading" ? (
