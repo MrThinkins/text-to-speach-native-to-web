@@ -24,6 +24,7 @@ export default function TTS() {
   const lastUsedRawAudio = useRef(null)
   const [checkerActivator, setCheckerActivator] = useState(0)
   const wasPlaying = useRef(false)
+  const startWithPlaying = useRef(false)
 
   async function loadTTSModel() {
     try {
@@ -83,13 +84,14 @@ export default function TTS() {
         // if (i % 3 == 0 || i == arraysToGenerate.length) {
           updateAudioUrls()
         // }
-        if (i == 7) {
+        if (i == 5) {
           updateAudio()
         }
         console.log('i: ' + i)
                 
       }
 
+      updateAudio()
       setStatus('Loaded')
     } catch (error) {
       console.error(`error generating audio: ${error}`)
@@ -120,8 +122,10 @@ export default function TTS() {
       URL.revokeObjectURL(audio)
       // console.log('revoked audio')
     }
-    
-    if (audioRef.current && !audioRef.current.paused) {
+    if (startWithPlaying.current) {
+      wasPlaying.current = true
+      startWithPlaying.current = false
+    } else if (audioRef.current && !audioRef.current.paused) {
       wasPlaying.current = true
     } else {
       wasPlaying.current = false
@@ -219,6 +223,12 @@ export default function TTS() {
     loadTTSModel()
   }, [])
 
+  function generateAndPlay() {
+    startWithPlaying.current = true
+    currentTime.current = 0
+    generateAudio()
+  }
+
   return (
     <div>
       <div id="statusShower">
@@ -240,7 +250,10 @@ export default function TTS() {
             generating
           </div>
         ) : (
-          <button onClick={generateAudio}>Generate audio</button>
+          <div>
+            <button onClick={generateAudio}>Generate audio</button>
+            <button onClick={generateAndPlay}>Generate and Play Audio</button>
+          </div>
         )}
         <div>
 
