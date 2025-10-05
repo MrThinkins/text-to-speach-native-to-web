@@ -61,7 +61,7 @@ export default function TTS() {
       setStatus('Wait for model to load')
       return
     }
-    
+    setStatus('generating')
     try {
       fullRawAudio.current = null
       let arraysToGenerate = splitString(textInput)
@@ -90,7 +90,7 @@ export default function TTS() {
                 
       }
 
-      setStatus('Audio Generated')
+      setStatus('Loaded')
     } catch (error) {
       console.error(`error generating audio: ${error}`)
     }
@@ -234,6 +234,10 @@ export default function TTS() {
         {status == "loading" ? (
           <div>
             waiting
+          </div>
+        ) : status == 'generating' ? (
+          <div>
+            generating
           </div>
         ) : (
           <button onClick={generateAudio}>Generate audio</button>
