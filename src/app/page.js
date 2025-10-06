@@ -9,7 +9,7 @@ const KokoroModelID = 'onnx-community/Kokoro-82M-v1.0-ONNX'
 
 export default function TTS() {
   const [status, setStatus] = useState('loading')
-  const [textInput, setTextInput] = useState('This is the default text for this text input to be replaced later. This is the default text for this text input to be replaced later. This is the default text for this text input to be replaced later.')
+  const [textInput, setTextInput] = useState('')
   const [audio, setAudio] = useState(null)
   const audioRef = useRef(null)
   const currentTime = useRef(0)
@@ -241,6 +241,9 @@ export default function TTS() {
 
   return (
     <div className="center">
+      <h1>
+        Text To Speech
+      </h1>
       {/* <div id="statusShower" className="content-margin">
         {status}
       </div> */}
@@ -249,6 +252,7 @@ export default function TTS() {
         value={textInput}
         onChange={(e) => setTextInput(e.target.value)}
         rows={10}
+        placeholder="Enter your text here."
       >
       </textarea>
       <br></br>
@@ -279,9 +283,7 @@ export default function TTS() {
         <option value="am_santa">Santa - American Male</option>
       </select>
       <br></br>
-      <div
-        className="content-margin"
-      >
+      <div className="">
         {status == "loading" ? (
           <div>
             Loading Model
@@ -306,19 +308,19 @@ export default function TTS() {
             </button>
           </div>
         )}
-        {audio ? (
-          <audio 
-            ref={audioRef} 
-            controls src={audio}
-            className="content-margin"
-          ></audio>
-        ) : (
-          <div>
-          </div>
-        )}
         
-          
       </div>
+      <br></br>
+      {audio ? (
+        <audio 
+          ref={audioRef} 
+          controls src={audio}
+          className=""
+        ></audio>
+      ) : (
+        <div>
+        </div>
+      )}
     </div>
   )
 }
