@@ -282,15 +282,8 @@ export default function TTS() {
             <button onClick={generateAndPlay}>Generate and Play Audio</button>
           </div>
         )}
-        <div>
-
-        </div>
-        
-        Generated Audio
-        <br></br>
         <audio ref={audioRef} controls src={audio}></audio>
       </div>
-      
     </div>
   )
 }
