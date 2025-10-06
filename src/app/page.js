@@ -26,6 +26,7 @@ export default function TTS() {
   const wasPlaying = useRef(false)
   const startWithPlaying = useRef(false)
   const [voice, setVoice] = useState('af_heart')
+  const [percentDone, setPercentDone] = useState(0)
 
   async function loadTTSModel() {
     try {
@@ -89,11 +90,13 @@ export default function TTS() {
           updateAudio()
         }
         console.log('i: ' + i)
+        setPercentDone(((i / arraysToGenerate.length) * 100).toFixed(0)) 
                 
       }
 
       updateAudio()
       setStatus('Loaded')
+      
     } catch (error) {
       console.error(`error generating audio: ${error}`)
     }
@@ -271,7 +274,7 @@ export default function TTS() {
           </div>
         ) : status == 'generating' ? (
           <div>
-            generating
+            Generating: {percentDone}% complete
           </div>
         ) : (
           <div>
