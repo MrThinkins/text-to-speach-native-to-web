@@ -65,7 +65,10 @@ export default function TTS() {
       return
     }
     setStatus('generating')
+    
     try {
+      setAudio(null)
+      currentTime.current = 0
       fullRawAudio.current = null
       let arraysToGenerate = splitString(textInput)
       console.log(arraysToGenerate.length)
@@ -204,6 +207,9 @@ export default function TTS() {
   }, [checkerActivator])
 
   useEffect(() => {
+    if (!audio) {
+      return
+    }
     console.log('updatePlay and spot')
     const audioElement = audioRef.current
 
@@ -234,17 +240,23 @@ export default function TTS() {
   }
 
   return (
-    <div>
-      <div id="statusShower">
+    <div className="center">
+      {/* <div id="statusShower" className="content-margin">
         {status}
-      </div>
+      </div> */}
       <textarea
+        className="content-margin"
         value={textInput}
         onChange={(e) => setTextInput(e.target.value)}
+        rows={10}
       >
       </textarea>
       <br></br>
-      <select value={voice} onChange={(e) => {setVoice(e.target.value)}}>
+      <select 
+        className="content-margin"
+        value={voice} 
+        onChange={(e) => {setVoice(e.target.value)}}
+      >
         <option value="af_heart">Heart - American Female</option>
         <option value="af_alloy">Alloy - American Female</option>
         <option value="af_aoede">Aoede - American Female</option>
@@ -267,10 +279,12 @@ export default function TTS() {
         <option value="am_santa">Santa - American Male</option>
       </select>
       <br></br>
-      <div>
+      <div
+        className="content-margin"
+      >
         {status == "loading" ? (
           <div>
-            waiting
+            Loading Model
           </div>
         ) : status == 'generating' ? (
           <div>
@@ -278,11 +292,32 @@ export default function TTS() {
           </div>
         ) : (
           <div>
-            <button onClick={generateAudio}>Generate audio</button>
-            <button onClick={generateAndPlay}>Generate and Play Audio</button>
+            <button 
+              className="content-margin"
+              onClick={generateAudio}
+            >
+              Generate audio
+            </button>
+            <button 
+              className="content-margin"
+              onClick={generateAndPlay}
+            >
+              Generate and Play Audio
+            </button>
           </div>
         )}
-        <audio ref={audioRef} controls src={audio}></audio>
+        {audio ? (
+          <audio 
+            ref={audioRef} 
+            controls src={audio}
+            className="content-margin"
+          ></audio>
+        ) : (
+          <div>
+          </div>
+        )}
+        
+          
       </div>
     </div>
   )

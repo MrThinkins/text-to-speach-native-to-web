@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 } */
+
+html {
+  color-scheme: dark light;
+}
+
+body {
+  max-width: 750px;
+  margin: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.center {
+  width: 100%;
+}
+
+audio {
+  width: 100%;
+  /* border-radius: 10px; */
+}
+
+button {
+  padding: 5px;
+  border-radius: 10px;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+select {
+  width: 250px;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+select:hover {
+  cursor: pointer;
+}
+
+textarea {
+  border-radius: 10px;
+  width: 100%;
+  padding: 5px;
+}
+
+.content-margin {
+  margin: 5px;
+}
+
