@@ -281,7 +281,7 @@ export default function TTS() {
       <div className="">
         {status == "loading" ? (
           <div>
-            Loading Model
+            Loading Model (this might take a few minutes the first time.)
           </div>
         ) : status == 'generating' ? (
           <div>
