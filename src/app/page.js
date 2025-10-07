@@ -15,9 +15,7 @@ export default function TTS() {
   const currentTime = useRef(0)
   const currentTime2 = useRef(0)
   const timeOfLastUpdate = useRef(null)
-  // const [timeOfLastUpdate, setTimeOfLastUpdate] = useState(null)
   const ttsModel = useRef(null)
-  // const [bufferAudio, setBufferAudio] = useState(null)
   const newAudioUrls = useRef([])
   const fullRawAudio = useRef(null)
   const timeArrays = useRef([])
@@ -244,9 +242,6 @@ export default function TTS() {
       <h1>
         Text To Speech
       </h1>
-      {/* <div id="statusShower" className="content-margin">
-        {status}
-      </div> */}
       <textarea
         className="content-margin"
         value={textInput}
