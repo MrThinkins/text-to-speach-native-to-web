@@ -26,6 +26,18 @@ export default function TTS() {
   const [voice, setVoice] = useState('af_heart')
   const [percentDone, setPercentDone] = useState(0)
 
+  useEffect(() => {
+    const tempVoice = localStorage.getItem('voice')
+    if (tempVoice) {
+      setVoice(tempVoice)
+    }
+  })
+
+  function setAndStoreVoice(voiceToSet) {
+    localStorage.setItem('voice', voiceToSet)
+    setLanguage(voiceToSet)
+  }
+
   async function loadTTSModel() {
     try {
       const { KokoroTTS } = await import("kokoro-js")
@@ -40,7 +52,7 @@ export default function TTS() {
 
       ttsModel.current = tempTTSModel
       setStatus('loaded')
-      // generateAudio()
+
     } catch (error) {
       setStatus(`Error: ${error.message}`)
     }
@@ -235,7 +247,7 @@ export default function TTS() {
       <select 
         className="content-margin"
         value={voice} 
-        onChange={(e) => {setVoice(e.target.value)}}
+        onChange={(e) => {setAndStoreVoice(e.target.value)}}
       >
         <option value="af_heart">Heart - American Female</option>
         <option value="af_alloy">Alloy - American Female</option>
@@ -257,6 +269,14 @@ export default function TTS() {
         <option value="am_onyx">Onyx - American Male</option>
         <option value="am_puck">Puck - American Male</option>
         <option value="am_santa">Santa - American Male</option>
+        <option value="bf_alice">Alice - British Female</option>
+        <option value="bf_emma">Emma - British Female</option>
+        <option value="bf_isabel">Isabel - British Female</option>
+        <option value="bf_lily">Lily - British Female</option>
+        <option value="bm_daniel">Daniel - British Male</option>
+        <option value="bm_fable">Fable - British Male</option>
+        <option value="bm_george">George - British Male</option>
+        <option value="bm_lewis">Lewis - British Male</option>
       </select>
       <br></br>
       <div className="">
