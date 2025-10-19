@@ -26,6 +26,18 @@ export default function TTS() {
   const [voice, setVoice] = useState('af_heart')
   const [percentDone, setPercentDone] = useState(0)
 
+  useEffect(() => {
+    const tempVoice = localStorage.getItem('voice')
+    if (tempVoice) {
+      setVoice(tempVoice)
+    }
+  })
+
+  function setAndStoreVoice(voiceToSet) {
+    localStorage.setItem('voice', voiceToSet)
+    setLanguage(voiceToSet)
+  }
+
   async function loadTTSModel() {
     try {
       const { KokoroTTS } = await import("kokoro-js")
@@ -40,7 +52,7 @@ export default function TTS() {
 
       ttsModel.current = tempTTSModel
       setStatus('loaded')
-      // generateAudio()
+
     } catch (error) {
       setStatus(`Error: ${error.message}`)
     }
@@ -81,8 +93,6 @@ export default function TTS() {
         const duration = fullRawAudio.current.length / 24000
         timeArrays.current.push(duration)
         console.log(timeArrays)
-
-        
         
         // if (i % 3 == 0 || i == arraysToGenerate.length) {
           updateAudioUrls()
@@ -110,10 +120,7 @@ export default function TTS() {
     if (newAudioUrls.current.length > 1) {
       newAudioUrls.current.splice(0, newAudioUrls.current.length - 1).forEach(url => URL.revokeObjectURL(url))
     }
-    // console.log(`newAudioUrls.length: ${newAudioUrls.current.length}`)
     newAudioUrls.current.push(URL.createObjectURL(blob))
-    
-    // console.log(`newAudioUrls.length ${newAudioUrls.current.length}`)
   }
   
   function updateAudio() {
@@ -122,10 +129,8 @@ export default function TTS() {
       return
     }
     lastUsedRawAudio.current = fullRawAudio.current
-    // console.log('updating audio')
     if (audio) {
       URL.revokeObjectURL(audio)
-      // console.log('revoked audio')
     }
     if (startWithPlaying.current) {
       wasPlaying.current = true
@@ -135,17 +140,14 @@ export default function TTS() {
     } else {
       wasPlaying.current = false
     }
-    // console.log(`currentTime: ${currentTime.current}`)
-    // updateAudioUrls()
     
-    // setBufferAudio(newAudioUrls[newAudioUrls.length - 1])
+    (newAudioUrls[newAudioUrls.length - 1])
     setAudio(newAudioUrls.current[newAudioUrls.current.length - 1])
     currentTime.current = audioRef.current?.currentTime || 0
     timeOfLastUpdate.current = Date.now() / 1000
     console.log('audioUpdated')
   }
   
-  // useEffect to activate other useEffects
   useEffect(() => {
     const interval = setInterval(() => {
       setCheckerActivator(prev => {
@@ -155,7 +157,6 @@ export default function TTS() {
           return prev + 1
         }
       })
-      // console.log('looped')
     }, 150) 
     return () => clearInterval(interval)
   }, [])
@@ -171,11 +172,8 @@ export default function TTS() {
   }
 
   useEffect(() => {
-    // console.log('loop 2')
     if (!audio || !audioRef.current) {
-      // console.log('oops')
       if (fullRawAudio.current == null) {
-        // console.log(fullRawAudio.current)
         console.log('double oops')
         return
       }
@@ -183,20 +181,15 @@ export default function TTS() {
     }
 
     if (lastUsedRawAudio.current != fullRawAudio.current) {      
-      // console.log('passed 1')
         currentTime2.current = audioRef.current?.currentTime || 0
 
       const timeCheck = Date.now() / 1000
-      // console.log(currentTime2.current)
-      // console.log('closeToTimeArray')
-      // console.log(closeToTimeArray())
+
       if (timeCheck - timeOfLastUpdate.current >= 5) {
-        // console.log(audioRef.current.paused)
         if (audioRef.current?.paused) {
           console.log('audio paused, updating')
           updateAudio()
         } else if (closeToTimeArray()) {
-          // console.log('passed 2')
           updateAudio()
         }
       }
@@ -254,7 +247,7 @@ export default function TTS() {
       <select 
         className="content-margin"
         value={voice} 
-        onChange={(e) => {setVoice(e.target.value)}}
+        onChange={(e) => {setAndStoreVoice(e.target.value)}}
       >
         <option value="af_heart">Heart - American Female</option>
         <option value="af_alloy">Alloy - American Female</option>
@@ -276,6 +269,14 @@ export default function TTS() {
         <option value="am_onyx">Onyx - American Male</option>
         <option value="am_puck">Puck - American Male</option>
         <option value="am_santa">Santa - American Male</option>
+        <option value="bf_alice">Alice - British Female</option>
+        <option value="bf_emma">Emma - British Female</option>
+        <option value="bf_isabel">Isabel - British Female</option>
+        <option value="bf_lily">Lily - British Female</option>
+        <option value="bm_daniel">Daniel - British Male</option>
+        <option value="bm_fable">Fable - British Male</option>
+        <option value="bm_george">George - British Male</option>
+        <option value="bm_lewis">Lewis - British Male</option>
       </select>
       <br></br>
       <div className="">
