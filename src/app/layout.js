@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
         {children}
         <Analytics />
       </body>
+      <link rel="manifest" href="manifest.json" />
     </html>
   );
 }
