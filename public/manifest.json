@@ -13,7 +13,7 @@
     {
       "src": "https://tts.thinkins.xyz/ttslogo.png",
       "isSquare": false,
-      "isPng": false,
+      "isPng": true,
       "isWebp": false,
       "isJpg": false,
       "width": 0,
