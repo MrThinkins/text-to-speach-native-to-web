@@ -12,15 +12,10 @@
   "icons": [
     {
       "src": "https://tts.thinkins.xyz/ttslogo.png",
-      "isSquare": true,
-      "isPng": true,
-      "isWebp": false,
-      "isJpg": false,
-      "width": 192,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": true
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "id": "tts.thinkins.xyz"
+  "id": "/"
 }
