@@ -12,11 +12,11 @@
   "icons": [
     {
       "src": "https://tts.thinkins.xyz/ttslogo.png",
-      "isSquare": false,
+      "isSquare": true,
       "isPng": true,
       "isWebp": false,
       "isJpg": false,
-      "width": 0,
+      "width": 192,
       "is512x512": false,
       "is256x256": false,
       "is192x192": true
