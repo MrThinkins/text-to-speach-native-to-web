@@ -1,5 +1,5 @@
 {
-  "background_color": "#ffffff",
+  "background_color": "#e4e4e7",
   "description": "Free, easy, and quick text to speech.",
   "dir": "ltr",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "scope": "/",
   "short_name": "TTS",
   "start_url": "/",
-  "theme_color": "#999999",
+  "theme_color": "#18181b",
   "icons": [
     {
       "src": "https://tts.thinkins.xyz/ttslogo.png",
