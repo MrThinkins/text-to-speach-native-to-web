@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from "react"
+import Script from "next/script"
 import { generateWave } from '@/utils/generateWave'
 import { splitString } from '@/utils/splitStrings'
 
@@ -230,13 +231,28 @@ export default function TTS() {
     generateAudio()
   }
 
+  useEffect(() => {
+    const handleTextExtracted = (e) => {
+      setTextInput(e.detail)
+    }
+    window.addEventListener('textExtracted', handleTextExtracted);
+    return () => {
+      window.removeEventListener('textExtracted', handleTextExtracted);
+    }
+  }, [])
+
   return (
     <div className="center">
       <h1>
         Text To Speech
       </h1>
+      <input
+        type="file"
+        id="file"
+      ></input>
       <textarea
         className="content-margin"
+        id="text-area"
         value={textInput}
         onChange={(e) => setTextInput(e.target.value)}
         rows={10}
@@ -317,6 +333,12 @@ export default function TTS() {
         <div>
         </div>
       )}
+      <Script
+        src="/textExtract.js"
+        type="module"
+        strategy="afterInteractive"
+      >
+      </Script>
     </div>
   )
 }
