@@ -240,6 +240,8 @@ export default function TTS() {
       window.removeEventListener('textExtracted', handleTextExtracted);
     }
   }, [])
+  
+  // 
 
   return (
     <div className="center">
@@ -334,6 +336,7 @@ export default function TTS() {
         </div>
       )}
       <Script
+        id="10"
         src="/textExtract.js"
         type="module"
         strategy="afterInteractive"
