@@ -12,6 +12,10 @@ file.addEventListener('change', async () => {
 
   if (uploadedFile.name.toLowerCase().endsWith('.txt')) {
     console.log('txt')
+    const textFromFile = await readTextFromFile(uploadedFile)
+    console.log(textFromFile)
+
+    window.dispatchEvent(new CustomEvent('textExtracted', { detail: textFromFile }))
   } else if (uploadedFile.name.toLowerCase().endsWith('.pdf')) {
     console.log('pdf')
     try {
@@ -31,6 +35,18 @@ file.addEventListener('change', async () => {
   }
 })
 
+function readTextFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      resolve(event.target.result)
+    }
+    reader.onerror = (error) => {
+      reject(error)
+    }
+    reader.readAsText(file)
+  })
+}
 
 async function extractTextFromPdf(pdfData) {
   try {
