@@ -248,10 +248,21 @@ export default function TTS() {
       <h1>
         Text To Speech
       </h1>
-      <input
-        type="file"
-        id="file"
-      ></input>
+      
+      <div className="file-upload">
+        <button  className="file-upload-label">
+          <label htmlFor="file" className="file-upload-label">
+            Upload File 
+          </label>
+        </button>
+        <input
+          type="file"
+          id="file"
+          className="file-input"
+        />
+      </div>
+      <br></br>
+      
       <textarea
         className="content-margin"
         id="text-area"
@@ -312,7 +323,7 @@ export default function TTS() {
               className="content-margin"
               onClick={generateAudio}
             >
-              Generate audio
+              Generate Audio
             </button>
             <button 
               className="content-margin"
